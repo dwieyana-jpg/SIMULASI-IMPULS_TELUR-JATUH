@@ -1,118 +1,171 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LKPD PRO - Momentum & Impuls</title>
-  <style>
-    body {font-family: Arial; margin:0; background:#eef2f7;}
-    header {background:#1f2d3d; color:#fff; padding:15px; text-align:center;}
-    .container {max-width:900px; margin:auto; padding:15px;}
-    .card {background:#fff; padding:15px; margin:10px 0; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.1);}    
-    input, textarea {width:100%; padding:8px; margin-top:5px; border-radius:6px; border:1px solid #ccc;}
-    button {background:#16a085; color:#fff; border:none; padding:10px; border-radius:6px; cursor:pointer;}
-    button:hover {background:#13856b;}
-    .result {margin-top:10px; font-weight:bold;}
-    .score {font-size:18px; color:#e74c3c;}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulasi Telur Jatuh SUPER REALISTIS</title>
+<style>
+  body { font-family: Arial; margin:0; background:#eef2f7; text-align:center; }
+  header { background:#1a252f; color:#fff; padding:15px; }
+  .container { padding:15px; }
+  canvas { background:linear-gradient(#bfe3ff,#eaf6ff); border-radius:10px; }
+  .card { background:#fff; padding:10px; margin:10px auto; max-width:500px; border-radius:10px; box-shadow:0 3px 10px rgba(0,0,0,0.1);} 
+  select, input { width:90%; padding:8px; margin-top:5px; }
+  button { padding:10px; margin:5px; background:#16a085; color:#fff; border:none; border-radius:5px; cursor:pointer; }
+</style>
 </head>
 <body>
+
 <header>
-  <h1>LKPD PRO Fisika</h1>
-  <p>Momentum & Impuls | © 2026 Dwi Yono, S.Pd</p>
+  <h2>Simulasi Telur Jatuh (Super Realistis)</h2>
+  <p>Momentum & Impuls</p>
 </header>
 
 <div class="container">
 
 <div class="card">
-  <h2>Identitas</h2>
-  <input id="nama" placeholder="Nama">
-  <input id="kelas" placeholder="Kelas">
-</div>
-
-<div class="card">
-  <h2>Observasi</h2>
-  <p>Kenapa benda lebih aman jatuh di permukaan empuk?</p>
-  <textarea id="obs"></textarea>
-</div>
-
-<div class="card">
-  <h2>Kalkulator Momentum</h2>
-  <input type="number" id="m" placeholder="Massa (kg)">
-  <input type="number" id="v" placeholder="Kecepatan (m/s)">
-  <button onclick="momentum()">Hitung</button>
-  <div class="result" id="pm"></div>
-</div>
-
-<div class="card">
-  <h2>Kalkulator Impuls</h2>
-  <input type="number" id="F" placeholder="Gaya (N)">
-  <input type="number" id="t" placeholder="Waktu (s)">
-  <button onclick="impuls()">Hitung</button>
-  <div class="result" id="pi"></div>
-</div>
-
-<div class="card">
-  <h2>Kuis Cepat</h2>
-  <p>1. Momentum dipengaruhi oleh?</p>
-  <select id="q1">
-    <option value="0">Pilih</option>
-    <option value="1">Massa & Kecepatan</option>
-    <option value="0">Gaya & Waktu</option>
+  <label>Pilih Permukaan:</label>
+  <select id="permukaan">
+    <option value="ubin">Lantai Ubin (Keras)</option>
+    <option value="busa">Kasur / Busa (Empuk)</option>
   </select>
 
-  <p>2. Impuls = ?</p>
-  <select id="q2">
-    <option value="0">Pilih</option>
-    <option value="1">F x t</option>
-    <option value="0">m x v</option>
-  </select>
+  <label>Ketinggian (meter):</label>
+  <input type="range" id="tinggi" min="1" max="5" value="2" oninput="updateTinggi()">
+  <p id="labelTinggi">Tinggi: 2 m</p>
 
-  <button onclick="nilai()">Hitung Nilai</button>
-  <div class="score" id="score"></div>
+  <button onclick="jatuhkan()">Jatuhkan</button>
+  <button onclick="resetSimulasi()">Reset</button>
 </div>
 
-<div class="card">
-  <h2>Refleksi</h2>
-  <textarea id="refleksi"></textarea>
-</div>
-
-<div class="card">
-  <button onclick="simpan()">💾 Simpan Jawaban</button>
-</div>
+<canvas id="canvas" width="400" height="400"></canvas>
 
 </div>
 
 <script>
-function momentum(){
-  let m = document.getElementById('m').value;
-  let v = document.getElementById('v').value;
-  document.getElementById('pm').innerText = "Momentum = " + (m*v) + " kg m/s";
+let canvas = document.getElementById('canvas');
+let ctx = canvas.getContext('2d');
+
+let y = 50;
+let velocity = 0;
+let jatuh = false;
+let pecah = false;
+let tinggiPixel = 200;
+let serpihan = [];
+let kuning = [];
+let bounce = 0;
+
+function updateTinggi(){
+  let t = tinggi.value;
+  labelTinggi.innerText = "Tinggi: " + t + " m";
+  tinggiPixel = 400 - (t * 60);
+  y = tinggiPixel;
 }
 
-function impuls(){
-  let F = document.getElementById('F').value;
-  let t = document.getElementById('t').value;
-  document.getElementById('pi').innerText = "Impuls = " + (F*t) + " Ns";
+function jatuhkan(){
+  jatuh = true;
+  velocity = 0;
+  pecah = false;
+  serpihan = [];
+  kuning = [];
 }
 
-function nilai(){
-  let s = parseInt(q1.value) + parseInt(q2.value);
-  let hasil = s * 50;
-  document.getElementById('score').innerText = "Nilai: " + hasil;
+function resetSimulasi(){
+  jatuh = false;
+  velocity = 0;
+  pecah = false;
+  serpihan = [];
+  kuning = [];
+  bounce = 0;
+  updateTinggi();
 }
 
-function simpan(){
-  let data = {
-    nama: nama.value,
-    kelas: kelas.value,
-    observasi: obs.value,
-    refleksi: refleksi.value,
-    nilai: score.innerText
-  };
-  localStorage.setItem('lkpd_pro', JSON.stringify(data));
-  alert('Tersimpan!');
+function buatPecahan(x,y){
+  for(let i=0;i<20;i++){
+    serpihan.push({
+      x:x,
+      y:y,
+      vx:(Math.random()-0.5)*8,
+      vy:(Math.random()-1)*8,
+      size:Math.random()*4+2
+    });
+  }
+  for(let i=0;i<10;i++){
+    kuning.push({
+      x:x,
+      y:y,
+      r:Math.random()*6+4
+    });
+  }
 }
+
+function gambarTelur(x,y){
+  ctx.beginPath();
+  ctx.ellipse(x,y,20,25,0,0,Math.PI*2);
+  ctx.fillStyle = "white";
+  ctx.fill();
+  ctx.stroke();
+}
+
+function draw(){
+  ctx.clearRect(0,0,400,400);
+
+  let permukaan = permukaanSelect();
+  ctx.fillStyle = permukaan === 'ubin' ? '#777' : '#27ae60';
+  ctx.fillRect(0,350,400,50);
+
+  if(jatuh){
+    velocity += 0.6; // gravitasi
+    y += velocity;
+
+    if(y >= 330){
+      y = 330;
+      jatuh = false;
+
+      if(permukaan === 'ubin'){
+        pecah = true;
+        buatPecahan(200,330);
+      } else {
+        // efek memantul
+        velocity = -velocity * 0.4;
+        bounce++;
+        if(bounce < 3) jatuh = true;
+      }
+    }
+  }
+
+  if(!pecah){
+    gambarTelur(200,y);
+  }
+
+  // serpihan
+  serpihan.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.3;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+    ctx.fillStyle = "#f1c40f";
+    ctx.fill();
+  });
+
+  // kuning telur (splash)
+  kuning.forEach(k => {
+    ctx.beginPath();
+    ctx.arc(k.x,k.y,k.r,0,Math.PI*2);
+    ctx.fillStyle = "rgba(255,215,0,0.7)";
+    ctx.fill();
+  });
+
+  requestAnimationFrame(draw);
+}
+
+function permukaanSelect(){
+  return document.getElementById('permukaan').value;
+}
+
+updateTinggi();
+draw();
 </script>
 
 </body>
