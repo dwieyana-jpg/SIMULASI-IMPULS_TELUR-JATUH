@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LKPD PRO - Momentum & Impuls</title>
+  <style>
+    body {font-family: Arial; margin:0; background:#eef2f7;}
+    header {background:#1f2d3d; color:#fff; padding:15px; text-align:center;}
+    .container {max-width:900px; margin:auto; padding:15px;}
+    .card {background:#fff; padding:15px; margin:10px 0; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.1);}    
+    input, textarea {width:100%; padding:8px; margin-top:5px; border-radius:6px; border:1px solid #ccc;}
+    button {background:#16a085; color:#fff; border:none; padding:10px; border-radius:6px; cursor:pointer;}
+    button:hover {background:#13856b;}
+    .result {margin-top:10px; font-weight:bold;}
+    .score {font-size:18px; color:#e74c3c;}
+  </style>
+</head>
+<body>
+<header>
+  <h1>LKPD PRO Fisika</h1>
+  <p>Momentum & Impuls | © 2026 Dwi Yono, S.Pd</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+  <h2>Identitas</h2>
+  <input id="nama" placeholder="Nama">
+  <input id="kelas" placeholder="Kelas">
+</div>
+
+<div class="card">
+  <h2>Observasi</h2>
+  <p>Kenapa benda lebih aman jatuh di permukaan empuk?</p>
+  <textarea id="obs"></textarea>
+</div>
+
+<div class="card">
+  <h2>Kalkulator Momentum</h2>
+  <input type="number" id="m" placeholder="Massa (kg)">
+  <input type="number" id="v" placeholder="Kecepatan (m/s)">
+  <button onclick="momentum()">Hitung</button>
+  <div class="result" id="pm"></div>
+</div>
+
+<div class="card">
+  <h2>Kalkulator Impuls</h2>
+  <input type="number" id="F" placeholder="Gaya (N)">
+  <input type="number" id="t" placeholder="Waktu (s)">
+  <button onclick="impuls()">Hitung</button>
+  <div class="result" id="pi"></div>
+</div>
+
+<div class="card">
+  <h2>Kuis Cepat</h2>
+  <p>1. Momentum dipengaruhi oleh?</p>
+  <select id="q1">
+    <option value="0">Pilih</option>
+    <option value="1">Massa & Kecepatan</option>
+    <option value="0">Gaya & Waktu</option>
+  </select>
+
+  <p>2. Impuls = ?</p>
+  <select id="q2">
+    <option value="0">Pilih</option>
+    <option value="1">F x t</option>
+    <option value="0">m x v</option>
+  </select>
+
+  <button onclick="nilai()">Hitung Nilai</button>
+  <div class="score" id="score"></div>
+</div>
+
+<div class="card">
+  <h2>Refleksi</h2>
+  <textarea id="refleksi"></textarea>
+</div>
+
+<div class="card">
+  <button onclick="simpan()">💾 Simpan Jawaban</button>
+</div>
+
+</div>
+
+<script>
+function momentum(){
+  let m = document.getElementById('m').value;
+  let v = document.getElementById('v').value;
+  document.getElementById('pm').innerText = "Momentum = " + (m*v) + " kg m/s";
+}
+
+function impuls(){
+  let F = document.getElementById('F').value;
+  let t = document.getElementById('t').value;
+  document.getElementById('pi').innerText = "Impuls = " + (F*t) + " Ns";
+}
+
+function nilai(){
+  let s = parseInt(q1.value) + parseInt(q2.value);
+  let hasil = s * 50;
+  document.getElementById('score').innerText = "Nilai: " + hasil;
+}
+
+function simpan(){
+  let data = {
+    nama: nama.value,
+    kelas: kelas.value,
+    observasi: obs.value,
+    refleksi: refleksi.value,
+    nilai: score.innerText
+  };
+  localStorage.setItem('lkpd_pro', JSON.stringify(data));
+  alert('Tersimpan!');
+}
+</script>
+
+</body>
+</html>
